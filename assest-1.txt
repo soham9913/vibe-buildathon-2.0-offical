@@ -1,0 +1,20 @@
+Open Weather API
+https://openweathermap.org/api
+
+Open meteror API
+https://open-meteo.com/
+
+USGS Earthquake API
+https://earthquake.usgs.gov/fdsnws/event/1/
+
+NASA Frims
+https://firms.modaps.eosdis.nasa.gov/
+
+Nasa Eonet
+https://eonet.gsfc.nasa.gov/docs/v3
+
+GDACS
+https://www.gdacs.org/
+
+Open streetmap overpass API
+https://overpass-api.de/ 
