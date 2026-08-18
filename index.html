@@ -558,7 +558,7 @@ const REPORT_TYPES = {
    STATE — dual persistence: localStorage now, Firebase sync later
    ========================================================= */
 let reports = JSON.parse(localStorage.getItem("calamitiesWatch_reports") || "[]");
-let map, markersLayer, radarLayer = null, radarOn = false;
+let map, markersLayer, userLocationMarker = null, radarLayer = null, radarOn = false;
 let selectedSeverity = "medium";
 let userLatLng = null;
 let reportChart = null;
@@ -601,6 +601,21 @@ function locateUser(){
   navigator.geolocation.getCurrentPosition(pos => {
     userLatLng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
     map.flyTo(userLatLng, 15);
+    
+    // Add or update user location marker
+    if(userLocationMarker){
+      userLocationMarker.setLatLng(userLatLng);
+    } else {
+      userLocationMarker = L.circleMarker(userLatLng, {
+        radius: 8,
+        color: "#2fa5d8",
+        fillColor: "#2fa5d8",
+        fillOpacity: 0.8,
+        weight: 2,
+        dashArray: "4, 2"
+      }).bindPopup("📍 Your location").addTo(map);
+    }
+    
     fetchWeather(userLatLng.lat, userLatLng.lng);
   }, () => alert("Couldn't get your location — check location permissions."));
 }
@@ -751,6 +766,21 @@ function openReportModal(){
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(pos => {
       userLatLng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      
+      // Add or update user location marker
+      if(userLocationMarker){
+        userLocationMarker.setLatLng(userLatLng);
+      } else {
+        userLocationMarker = L.circleMarker(userLatLng, {
+          radius: 8,
+          color: "#2fa5d8",
+          fillColor: "#2fa5d8",
+          fillOpacity: 0.8,
+          weight: 2,
+          dashArray: "4, 2"
+        }).bindPopup("📍 Your location").addTo(map);
+      }
+      
       status.textContent = "📍 Location: using your current GPS position";
     }, () => {
       userLatLng = { lat: CONFIG.MUMBAI_CENTER[0], lng: CONFIG.MUMBAI_CENTER[1] };
