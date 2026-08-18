@@ -1,0 +1,114 @@
+# 🌊 Calamities Watch
+
+**A real-time, citizen-powered disaster monitoring platform for India** — combining live weather, crowdsourced hazard reports, an active-alerts feed, and AI-assisted risk scoring to help communities respond faster to floods, cyclones, landslides, and other disasters.
+
+Built during the **Vibe Buildathon** (Kirti College, Dadar West).
+
+---
+
+## What it does
+
+Calamities Watch is a single-page dashboard with three pillars:
+
+- **Monitor** — a live map of active disasters across India, current weather conditions, and a citizen incident-reporting system.
+- **Predict** — a rule-based risk dashboard that scores overall severity from live reports and conditions (marked in code as the swap-in point for a real Claude API risk model).
+- **Respond** — an SOS panel with tap-to-call emergency numbers, plus context-aware safety recommendations per disaster type.
+
+It runs entirely as a **single static HTML file** — no build step, no server required to demo.
+
+---
+
+## Features
+
+### Live map
+- Interactive India-wide map (Leaflet + OpenStreetMap tiles)
+- Location search by city, district, or state (OpenStreetMap Nominatim)
+- Filter markers by disaster type and minimum severity
+- Colour-coded severity legend (Low / Medium / High / Critical)
+- Click any marker for a detail popup → full info modal with safety tips
+
+### Weather & radar
+- Current conditions card: temperature, condition, rainfall, humidity, wind
+- Live rain radar overlay (RainViewer public tiles)
+- **Windy embed panel** — toggleable full radar/wind view, and the automatic fallback if the RainViewer radar fails to load
+
+### Risk dashboard
+- Aggregate risk level (Low → Severe) computed from active disasters
+- Estimated people affected, with a type breakdown doughnut chart
+- Top affected states ranked by risk score
+
+### Active alerts
+- Auto-generated feed of high/critical-severity disasters
+- Click an alert to fly the map to it and open full details
+
+### Citizen reporting
+- Report an incident with type, severity, description, and GPS location (or tap-to-place on the map)
+- Reports appear instantly as map markers and in the activity feed
+- Persisted in the browser via `localStorage`
+
+### Safety recommendations
+- Context-aware tips that update based on the disaster type you're viewing
+- General preparedness tips shown by default
+
+### SOS
+- One-tap emergency contacts modal (national, medical, fire, state disaster helpline)
+- Tap-to-call links (`tel:`)
+
+---
+
+## Tech stack
+
+| Purpose | Tool | API key needed? |
+|---|---|---|
+| Map & markers | [Leaflet.js](https://leafletjs.com/) + OpenStreetMap tiles | No |
+| Location search | OpenStreetMap Nominatim | No |
+| Rain radar | [RainViewer](https://www.rainviewer.com/api.html) | No |
+| Radar fallback / wind view | [Windy embed widget](https://embed.windy.com/) | No |
+| Current weather | [OpenWeatherMap](https://openweathermap.org/api) | Yes (optional — falls back to mock data) |
+| Charts | [Chart.js](https://www.chartjs.org/) | No |
+| Citizen report storage | Browser `localStorage` | No |
+
+No backend, no build tools, no npm install — it's one HTML file with everything inlined.
+
+---
+
+## Getting started
+
+1. Open `index.html` in any modern browser. That's it.
+2. **Optional — live weather:** get a free key from [openweathermap.org/api](https://openweathermap.org/api) and paste it into `CONFIG.OPENWEATHER_API_KEY` near the top of the `<script>` block. Without a key, the weather card shows realistic placeholder data so the UI is never empty.
+3. Requires an internet connection at runtime — map tiles, radar, weather, and search all fetch from live public APIs.
+
+---
+
+## Project structure
+
+```
+index.html   ← everything: markup, styles, and app logic in one file
+```
+
+Kept intentionally as a single file for hackathon speed and zero-setup demoing. See **Roadmap** below for what a production split would look like.
+
+---
+
+## Current data
+
+The map ships with an 18-entry **mock disaster dataset** (`MOCK_DISASTERS`) spanning floods, cyclones, earthquakes, landslides, wildfires, drought, and heatwaves across multiple Indian states, used to demonstrate the risk dashboard, alerts feed, and filtering. Citizen reports submitted through the app are layered on top of this in real time.
+
+---
+
+## Roadmap / known limitations
+
+- **Live disaster feed** — `MOCK_DISASTERS` is static seed data; the natural next step is pulling from a real feed (e.g. NDMA/IMD).
+- **Cross-device sync** — citizen reports currently only persist in the submitting browser's `localStorage`. Firebase Firestore integration is scaffolded with `TODO` comments at the report-submission point but not yet wired in.
+- **AI risk scoring** — the risk dashboard currently uses a rule-based score, not a live Claude API call. A `TODO` block in the code shows exactly how to add this via a backend proxy (calling the Anthropic API directly from client-side JS isn't done here, since that would mean shipping an API key in the browser).
+- **SOS contacts** — the national numbers (112, 108, 101) are accurate India-wide; the local ward office entry is a placeholder and should be confirmed before any real deployment.
+- **Offline support** — none yet; the app needs connectivity for map tiles, radar, weather, and search.
+
+---
+
+## Attribution
+
+- Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors
+- Radar imagery: [RainViewer](https://www.rainviewer.com/), [Windy](https://www.windy.com/)
+- Weather data: [OpenWeatherMap](https://openweathermap.org/)
+- Geocoding: [Nominatim](https://nominatim.org/)

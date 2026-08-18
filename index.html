@@ -684,7 +684,6 @@
 
       <div class="map-controls">
         <button class="map-btn" id="btnLocate" onclick="locateUser()">📍 My location</button>
-        <button class="map-btn" id="btnRadar" onclick="toggleRadar()">🌧️ Rain radar</button>
         <button class="map-btn" id="btnWindy" onclick="toggleWindyPanel()">🌬️ Windy view</button>
         <button class="map-btn" id="btnFilters" onclick="toggleFilters()">🧭 Filters</button>
       </div>
@@ -972,7 +971,7 @@ const MOCK_DISASTERS = [
 let reports = JSON.parse(localStorage.getItem("calamitiesWatch_reports") || "[]");
 let allDisasters = [...MOCK_DISASTERS, ...reports]; // reports carry source:"citizen"
 let markerRefs = {}; // id -> leaflet marker
-let map, markersLayer, userLocationMarker = null, searchMarker = null, radarLayer = null, radarOn = false;
+let map, markersLayer, userLocationMarker = null, searchMarker = null;
 let windyOpen = false;
 let selectedSeverity = "medium";
 let userLatLng = null;
@@ -1070,49 +1069,6 @@ function locateUser(){
     fetchWeather(userLatLng.lat, userLatLng.lng);
     document.getElementById('locationTag').textContent = "Near you";
   }, () => alert("Couldn't get your location — check location permissions."));
-}
-
-/* Rain radar — RainViewer with improved rendering and opacity */
-async function toggleRadar(){
-  const btn = document.getElementById('btnRadar');
-  if(radarOn && radarLayer){
-    map.removeLayer(radarLayer);
-    radarOn = false;
-    btn.classList.remove('active');
-    return;
-  }
-  try{
-    btn.textContent = '🌧️ Loading radar...';
-    const res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
-    const data = await res.json();
-    
-    // Use latest radar frame for better accuracy
-    const latestFrame = data.radar.latest?.path || data.radar.past[data.radar.past.length - 1].path;
-    
-    // Create radar layer with optimized settings
-    radarLayer = L.tileLayer(
-      `https://tilecache.rainviewer.com${latestFrame}/512/{z}/{x}/{y}/2/1_0.png`,
-      {
-        opacity: 0.65,
-        maxZoom: 18,
-        maxNativeZoom: 16,
-        tms: false,
-        crossOrigin: 'anonymous',
-        className: 'radar-layer',
-        detectRetina: true
-      }
-    ).addTo(map);
-    
-    radarLayer.bringToFront();
-    radarOn = true;
-    btn.classList.add('active');
-    btn.textContent = '🌧️ Rain radar';
-  }catch(err){
-    console.warn("RainViewer unavailable:", err);
-    btn.textContent = '🌧️ Rain radar';
-    // Fall back to Windy's embed, which needs no API key and rarely goes down
-    openWindyPanel({ overlay: 'rain', fallback: true });
-  }
 }
 
 /* =========================================================
