@@ -343,6 +343,70 @@
   .map-legend .item{display:flex; align-items:center; gap:5px;}
   .map-legend .ring{width:10px; height:10px; border-radius:50%; border:2px solid;}
 
+  /* Windy embed panel — slides over the map */
+  .windy-panel{
+    position:absolute;
+    inset:0;
+    z-index:900;
+    background:var(--bg-panel-3);
+    display:none;
+    flex-direction:column;
+  }
+  .windy-panel.open{display:flex;}
+  .windy-panel-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 14px;
+    background:var(--bg-panel);
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .windy-panel-bar .title{
+    font-family:'Archivo',sans-serif;
+    font-weight:800;
+    font-size:0.85rem;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .windy-panel-bar .title .badge{
+    font-size:0.62rem;
+    font-weight:700;
+    color:var(--text-muted);
+    background:var(--bg-panel-3);
+    border:1px solid var(--border);
+    padding:2px 7px;
+    border-radius:999px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+  .windy-panel-bar .close-btn{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-muted);
+    border-radius:8px;
+    padding:6px 12px;
+    font-size:0.78rem;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .windy-panel-bar .close-btn:hover{border-color:var(--alert); color:var(--alert);}
+  .windy-panel iframe{
+    flex:1;
+    width:100%;
+    border:none;
+  }
+  .windy-fallback-note{
+    font-size:0.7rem;
+    color:var(--text-muted);
+    background:var(--bg-panel);
+    border-top:1px solid var(--border);
+    padding:6px 14px;
+    text-align:center;
+    flex-shrink:0;
+  }
+
   /* ---------- SIDEBAR ---------- */
   .sidebar{
     background:var(--bg-panel);
@@ -621,6 +685,7 @@
       <div class="map-controls">
         <button class="map-btn" id="btnLocate" onclick="locateUser()">📍 My location</button>
         <button class="map-btn" id="btnRadar" onclick="toggleRadar()">🌧️ Rain radar</button>
+        <button class="map-btn" id="btnWindy" onclick="toggleWindyPanel()">🌬️ Windy view</button>
         <button class="map-btn" id="btnFilters" onclick="toggleFilters()">🧭 Filters</button>
       </div>
 
@@ -647,6 +712,18 @@
 
       <button class="fab-sos" onclick="openSOSModal()">🆘 SOS</button>
       <button class="fab-report" onclick="openReportModal()">⚠️ Report incident</button>
+
+      <!-- WINDY EMBED PANEL — slides over the map, no API key required -->
+      <div class="windy-panel" id="windyPanel">
+        <div class="windy-panel-bar">
+          <div class="title">🌬️ Windy radar <span class="badge" id="windyBadge">rain</span></div>
+          <button class="close-btn" onclick="closeWindyPanel()">✕ Close</button>
+        </div>
+        <iframe id="windyIframe" src="" title="Windy weather map" loading="lazy" allow="geolocation"></iframe>
+        <div class="windy-fallback-note" id="windyFallbackNote" style="display:none;">
+          Showing Windy as a fallback — the live radar layer couldn't load.
+        </div>
+      </div>
     </section>
 
     <!-- SIDEBAR -->
@@ -896,6 +973,7 @@ let reports = JSON.parse(localStorage.getItem("calamitiesWatch_reports") || "[]"
 let allDisasters = [...MOCK_DISASTERS, ...reports]; // reports carry source:"citizen"
 let markerRefs = {}; // id -> leaflet marker
 let map, markersLayer, userLocationMarker = null, searchMarker = null, radarLayer = null, radarOn = false;
+let windyOpen = false;
 let selectedSeverity = "medium";
 let userLatLng = null;
 let riskChart = null;
@@ -908,18 +986,23 @@ let selectedDisasterType = null; // drives the safety-recommendations card
    ========================================================= */
 function initMap(){
   map = L.map('map', {
-    zoomControl:false,
+    zoomControl: false,
     minZoom: 4,
-    maxZoom: 19,      // OSM's standard raster tiles stop at 19 — without this
-  }).setView(CONFIG.INDIA_CENTER, CONFIG.DEFAULT_ZOOM); // cap, scroll/flyTo could request unsupported zooms
+    maxZoom: 18,
+    wheelPxPerZoomLevel: 120,
+    touchZoom: true,
+    doubleClickZoom: true,
+    scrollWheelZoom: true
+  }).setView(CONFIG.INDIA_CENTER, CONFIG.DEFAULT_ZOOM);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors',
-    maxZoom: 19,
-    maxNativeZoom: 19  // tells Leaflet not to request tiles past what the server actually has
+    maxZoom: 18,
+    maxNativeZoom: 18,
+    className: 'map-tiles'
   }).addTo(map);
 
-  L.control.zoom({ position:'bottomright' }).addTo(map);
+  L.control.zoom({ position: 'bottomright', zoomInTitle: 'Zoom in', zoomOutTitle: 'Zoom out' }).addTo(map);
 
   markersLayer = L.layerGroup().addTo(map);
 
@@ -989,7 +1072,7 @@ function locateUser(){
   }, () => alert("Couldn't get your location — check location permissions."));
 }
 
-/* Rain radar — RainViewer public tiles (no key needed) */
+/* Rain radar — RainViewer with improved rendering and opacity */
 async function toggleRadar(){
   const btn = document.getElementById('btnRadar');
   if(radarOn && radarLayer){
@@ -999,16 +1082,89 @@ async function toggleRadar(){
     return;
   }
   try{
+    btn.textContent = '🌧️ Loading radar...';
     const res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
     const data = await res.json();
-    const latestFrame = data.radar.past[data.radar.past.length - 1].path;
-    radarLayer = L.tileLayer(`https://tilecache.rainviewer.com${latestFrame}/256/{z}/{x}/{y}/2/1_1.png`, { opacity:0.6, maxNativeZoom:12 }).addTo(map);
+    
+    // Use latest radar frame for better accuracy
+    const latestFrame = data.radar.latest?.path || data.radar.past[data.radar.past.length - 1].path;
+    
+    // Create radar layer with optimized settings
+    radarLayer = L.tileLayer(
+      `https://tilecache.rainviewer.com${latestFrame}/512/{z}/{x}/{y}/2/1_0.png`,
+      {
+        opacity: 0.65,
+        maxZoom: 18,
+        maxNativeZoom: 16,
+        tms: false,
+        crossOrigin: 'anonymous',
+        className: 'radar-layer',
+        detectRetina: true
+      }
+    ).addTo(map);
+    
+    radarLayer.bringToFront();
     radarOn = true;
     btn.classList.add('active');
+    btn.textContent = '🌧️ Rain radar';
   }catch(err){
-    console.warn("RainViewer unavailable.", err);
-    alert("Radar layer unavailable right now.");
+    console.warn("RainViewer unavailable:", err);
+    btn.textContent = '🌧️ Rain radar';
+    // Fall back to Windy's embed, which needs no API key and rarely goes down
+    openWindyPanel({ overlay: 'rain', fallback: true });
   }
+}
+
+/* =========================================================
+   WINDY EMBED — public embed widget, no API key required.
+   Used both as an explicit "Windy view" toggle and as the
+   automatic fallback when the RainViewer radar tile fetch fails.
+
+   TODO (optional upgrade): if you get a free key from
+   https://api.windy.com/keys, you can swap this iframe embed for
+   the Windy Map Forecast JS API (api.windy.com/map-forecast),
+   which renders inside your own Leaflet instance instead of a
+   separate iframe and lets you read point-forecast data in JS.
+   ========================================================= */
+function buildWindyEmbedUrl({ lat, lng, overlay = 'rain', zoom = 5 }){
+  const params = new URLSearchParams({
+    lat, lon: lng,
+    detailLat: lat, detailLon: lng,
+    width: 650, height: 450,
+    zoom, level: 'surface',
+    overlay,               // rain | wind | temp | clouds | pressure ...
+    product: 'ecmwf',
+    menu: '', message: 'true', marker: '',
+    calendar: 'now', pressure: '', type: 'map',
+    location: 'coordinates', detail: '',
+    metricWind: 'default', metricTemp: 'default',
+    radarRange: '-1'
+  });
+  return `https://embed.windy.com/embed2.html?${params.toString()}`;
+}
+
+function openWindyPanel({ overlay = 'rain', fallback = false } = {}){
+  const center = map ? map.getCenter() : { lat: CONFIG.INDIA_CENTER[0], lng: CONFIG.INDIA_CENTER[1] };
+  const zoom = map ? Math.min(Math.max(map.getZoom(), 3), 12) : 5;
+
+  document.getElementById('windyIframe').src = buildWindyEmbedUrl({ lat: center.lat, lng: center.lng, overlay, zoom });
+  document.getElementById('windyBadge').textContent = overlay;
+  document.getElementById('windyFallbackNote').style.display = fallback ? 'block' : 'none';
+  document.getElementById('windyPanel').classList.add('open');
+  document.getElementById('btnWindy').classList.add('active');
+  windyOpen = true;
+}
+
+function closeWindyPanel(){
+  document.getElementById('windyPanel').classList.remove('open');
+  document.getElementById('windyIframe').src = ""; // stop the embed from running in the background
+  document.getElementById('btnWindy').classList.remove('active');
+  windyOpen = false;
+}
+
+function toggleWindyPanel(){
+  if(windyOpen){ closeWindyPanel(); }
+  else{ openWindyPanel({ overlay: 'rain', fallback: false }); }
 }
 
 /* =========================================================
