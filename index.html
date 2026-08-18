@@ -305,24 +305,6 @@
   }
   .fab-report:hover{filter:brightness(1.08);}
 
-<<<<<<< Updated upstream
-  .map-legend{
-    position:absolute;
-    bottom:24px;
-    left:14px;
-    z-index:500;
-    background:rgba(16,30,46,0.92);
-    border:1px solid var(--border);
-    border-radius:10px;
-    padding:10px 12px;
-    font-size:0.68rem;
-    color:var(--text-muted);
-    display:flex;
-    gap:12px;
-  }
-  .map-legend .item{display:flex; align-items:center; gap:5px;}
-  .map-legend .ring{width:10px; height:10px; border-radius:50%; border:2px solid;}
-=======
   .fab-sos{
     position:absolute;
     bottom:24px;
@@ -344,69 +326,22 @@
   }
   .fab-sos:hover{background:#93141a;}
 
-  /* AI risk badge, floats top-right of the map */
-  .risk-badge{
+  .map-legend{
     position:absolute;
-    top:14px;
-    right:14px;
+    bottom:24px;
+    left:14px;
     z-index:500;
-    background:var(--bg-panel);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:10px 14px;
-    max-width:230px;
-  }
-  .risk-badge .risk-label{
-    display:flex;
-    align-items:center;
-    gap:7px;
-    font-family:'Archivo',sans-serif;
-    font-weight:800;
-    font-size:0.85rem;
-    text-transform:uppercase;
-    letter-spacing:0.04em;
-  }
-  .risk-badge .risk-dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
-  .risk-badge .risk-reason{
-    font-size:0.72rem;
-    color:var(--text-muted);
-    margin-top:4px;
-    line-height:1.35;
-  }
-  .risk-badge .risk-tag{
-    font-size:0.6rem;
-    color:var(--text-muted);
-    text-transform:uppercase;
-    letter-spacing:0.06em;
-    margin-top:5px;
-    opacity:0.7;
-  }
-
-  .sos-modal .sos-item{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    background:var(--bg-panel-2);
+    background:rgba(16,30,46,0.92);
     border:1px solid var(--border);
     border-radius:10px;
-    padding:10px 14px;
-  }
-  .sos-modal .sos-item .name{font-size:0.85rem; font-weight:600;}
-  .sos-modal .sos-item .desc{font-size:0.7rem; color:var(--text-muted); margin-top:2px;}
-  .sos-modal .sos-item .number{
-    font-family:'Archivo',sans-serif;
-    font-weight:800;
-    font-size:1.1rem;
-    color:var(--alert);
-    text-decoration:none;
-  }
-  .sos-modal .sos-note{
+    padding:10px 12px;
     font-size:0.68rem;
     color:var(--text-muted);
-    text-align:center;
-    margin-top:2px;
+    display:flex;
+    gap:12px;
   }
->>>>>>> Stashed changes
+  .map-legend .item{display:flex; align-items:center; gap:5px;}
+  .map-legend .ring{width:10px; height:10px; border-radius:50%; border:2px solid;}
 
   /* ---------- SIDEBAR ---------- */
   .sidebar{
@@ -596,6 +531,34 @@
   .btn-submit{background:var(--water); color:#04202e;}
   .gps-hint{font-size:0.68rem; color:var(--text-muted);}
 
+  /* SOS modal styling */
+  .sos-modal .sos-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--bg-panel-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px 14px;
+  }
+  .sos-modal .sos-item .name{font-size:0.85rem; font-weight:600;}
+  .sos-modal .sos-item .desc{font-size:0.7rem; color:var(--text-muted); margin-top:2px;}
+  .sos-modal .sos-item .number{
+    font-family:'Archivo',sans-serif;
+    font-weight:800;
+    font-size:1.1rem;
+    color:var(--alert);
+    text-decoration:none;
+  }
+  .sos-modal .sos-note{
+    font-size:0.68rem;
+    color:var(--text-muted);
+    background:var(--bg-panel-3);
+    padding:8px 10px;
+    border-radius:6px;
+    margin-top:8px;
+  }
+
   /* info modal (disaster popup detail) */
   .info-badges{display:flex; gap:8px; flex-wrap:wrap;}
   .info-badge{font-size:0.68rem; font-weight:700; padding:4px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:0.03em;}
@@ -680,13 +643,6 @@
         <div class="item"><span class="ring" style="border-color:var(--warn)"></span>Medium</div>
         <div class="item"><span class="ring" style="border-color:var(--alert)"></span>High</div>
         <div class="item"><span class="ring" style="border-color:var(--critical)"></span>Critical</div>
-      </div>
-
-      <!-- AI RISK BADGE (rule-based now; swap in Claude API via backend — see computeRiskLevel()) -->
-      <div class="risk-badge" id="riskBadge">
-        <div class="risk-label"><span class="risk-dot" id="riskDot" style="background:var(--safe)"></span><span id="riskLevel">Assessing…</span></div>
-        <div class="risk-reason" id="riskReason">Gathering current conditions.</div>
-        <div class="risk-tag">AI risk assessment</div>
       </div>
 
       <button class="fab-sos" onclick="openSOSModal()">🆘 SOS</button>
@@ -791,11 +747,11 @@
   </form>
 </div>
 
-<<<<<<< Updated upstream
 <!-- ===== DISASTER INFO MODAL ===== -->
 <div class="modal-overlay" id="infoModalOverlay">
   <div class="info-modal" id="infoModalBody"></div>
-=======
+</div>
+
 <!-- ===== SOS MODAL ===== -->
 <div class="modal-overlay" id="sosModalOverlay">
   <div class="report-modal sos-modal">
@@ -806,7 +762,6 @@
       <button type="button" class="btn btn-cancel" onclick="closeSOSModal()">Close</button>
     </div>
   </div>
->>>>>>> Stashed changes
 </div>
 
 <script>
@@ -821,7 +776,16 @@ const CONFIG = {
   // FIREBASE_CONFIG: { apiKey:"", authDomain:"", projectId:"", ... }
 };
 
-<<<<<<< Updated upstream
+// Standard India-wide emergency numbers. Swap the "ward" entry for your
+// actual local disaster management office number before a real deployment.
+const SOS_CONTACTS = [
+  { name:"National Emergency", desc:"Police / fire / medical — all-in-one", number:"112" },
+  { name:"Ambulance", desc:"Medical emergency", number:"108" },
+  { name:"Fire Brigade", desc:"Fire / rescue", number:"101" },
+  { name:"State Disaster Helpline", desc:"Maharashtra SEOC", number:"1077" },
+  { name:"Local Ward Office", desc:"NMMC Disaster Management Cell — TODO: confirm number", number:"022-XXXXXXX" },
+];
+
 /* =========================================================
    TYPE + SEVERITY REGISTRIES
    ========================================================= */
@@ -838,25 +802,6 @@ const DISASTER_TYPES = {
   power_outage:  { label:"Power outage",   icon:"⚡", color:"#ffd23f" },
   road_block:    { label:"Road blocked",   icon:"🚧", color:"#ff9f4a" },
   other:         { label:"Other",          icon:"❔", color:"#7e93a7" },
-=======
-// Standard India-wide emergency numbers. Swap the "ward" entry for your
-// actual local disaster management office number before a real deployment.
-const SOS_CONTACTS = [
-  { name:"National Emergency", desc:"Police / fire / medical — all-in-one", number:"112" },
-  { name:"Ambulance", desc:"Medical emergency", number:"108" },
-  { name:"Fire Brigade", desc:"Fire / rescue", number:"101" },
-  { name:"State Disaster Helpline", desc:"Maharashtra SEOC", number:"1077" },
-  { name:"Local Ward Office", desc:"NMMC Disaster Management Cell — TODO: confirm number", number:"022-XXXXXXX" },
-];
-
-const REPORT_TYPES = {
-  flooding:      { label: "Flooding",       color: "#ff5a5f" },
-  waterlogging:  { label: "Waterlogging",   color: "#2fa5d8" },
-  tree_fall:     { label: "Tree fall",      color: "#35c48f" },
-  power_outage:  { label: "Power outage",   color: "#ffb020" },
-  road_block:    { label: "Road blocked",   color: "#a463f2" },
-  other:         { label: "Other",          color: "#7e93a7" },
->>>>>>> Stashed changes
 };
 
 const SEVERITY = {
@@ -948,7 +893,6 @@ const MOCK_DISASTERS = [
    STATE
    ========================================================= */
 let reports = JSON.parse(localStorage.getItem("calamitiesWatch_reports") || "[]");
-<<<<<<< Updated upstream
 let allDisasters = [...MOCK_DISASTERS, ...reports]; // reports carry source:"citizen"
 let markerRefs = {}; // id -> leaflet marker
 let map, markersLayer, userLocationMarker = null, searchMarker = null, radarLayer = null, radarOn = false;
@@ -958,13 +902,6 @@ let riskChart = null;
 let activeTypeFilters = new Set(Object.keys(DISASTER_TYPES));
 let minSeverityWeight = 0;
 let selectedDisasterType = null; // drives the safety-recommendations card
-=======
-let map, markersLayer, radarLayer = null, radarOn = false;
-let selectedSeverity = "medium";
-let userLatLng = null;
-let reportChart = null;
-let currentWeather = { rain: 0 }; // updated by renderWeather(), read by computeRiskLevel()
->>>>>>> Stashed changes
 
 /* =========================================================
    MAP
@@ -1040,7 +977,6 @@ function locateUser(){
   if(!navigator.geolocation){ alert("Geolocation not supported on this device."); return; }
   navigator.geolocation.getCurrentPosition(pos => {
     userLatLng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-<<<<<<< Updated upstream
     map.flyTo(userLatLng, 11);
     if(userLocationMarker){ userLocationMarker.setLatLng(userLatLng); }
     else{
@@ -1048,9 +984,6 @@ function locateUser(){
         radius: 8, color:"#2fa5d8", fillColor:"#2fa5d8", fillOpacity:0.8, weight:2, dashArray:"4,2"
       }).bindPopup("📍 Your location").addTo(map);
     }
-=======
-    map.flyTo(userLatLng, 15);
->>>>>>> Stashed changes
     fetchWeather(userLatLng.lat, userLatLng.lng);
     document.getElementById('locationTag').textContent = "Near you";
   }, () => alert("Couldn't get your location — check location permissions."));
@@ -1201,9 +1134,6 @@ function renderWeather(w){
   document.getElementById('wWind').textContent = `${w.wind} km/h`;
   document.getElementById('wUpdated').textContent = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
   document.getElementById('wIcon').textContent = w.rain > 2 ? "🌧️" : w.rain > 0 ? "🌦️" : "⛅";
-
-  currentWeather = w;
-  computeRiskLevel();
 }
 
 function renderWeatherMock(){
@@ -1211,59 +1141,7 @@ function renderWeatherMock(){
 }
 
 /* =========================================================
-<<<<<<< Updated upstream
    RISK DASHBOARD
-=======
-   AI RISK ASSESSMENT
-   Rule-based scoring for the demo — combines current rainfall
-   with recent, severity-weighted citizen reports.
-
-   TODO (post-hackathon / if you have a backend): replace the body
-   of computeRiskLevel() with a call to your own server, which in
-   turn calls the Claude API. Never call api.anthropic.com directly
-   from this client-side file — that would require shipping your
-   API key in the browser. Example shape once you have a proxy:
-
-     const res = await fetch('/api/risk-assessment', {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ rainfall: currentWeather.rain, reports: recentReports })
-     });
-     const { level, reasoning } = await res.json();
-
-   Your backend prompt would ask Claude to return strict JSON:
-   { "level": "low" | "moderate" | "high", "reasoning": "one sentence" }
-   ========================================================= */
-function computeRiskLevel(){
-  const oneHourAgo = Date.now() - 60 * 60 * 1000;
-  const recentReports = reports.filter(r => r.timestamp >= oneHourAgo);
-
-  const severityWeight = { low:1, medium:2, high:3 };
-  const reportScore = recentReports.reduce((sum, r) => sum + (severityWeight[r.severity] || 1), 0);
-  const rainScore = currentWeather.rain || 0;
-
-  const score = rainScore + reportScore;
-
-  let level, color, reasoning;
-  if(score >= 12){
-    level = "High risk"; color = "var(--alert)";
-    reasoning = `${currentWeather.rain}mm rainfall with ${recentReports.length} report(s) in the last hour — conditions worsening.`;
-  } else if(score >= 5){
-    level = "Moderate risk"; color = "var(--warn)";
-    reasoning = `${currentWeather.rain}mm rainfall and ${recentReports.length} report(s) nearby — stay alert.`;
-  } else {
-    level = "Low risk"; color = "var(--safe)";
-    reasoning = `${currentWeather.rain}mm rainfall, ${recentReports.length} report(s) in the last hour — conditions stable.`;
-  }
-
-  document.getElementById('riskLevel').textContent = level;
-  document.getElementById('riskDot').style.background = color;
-  document.getElementById('riskReason').textContent = reasoning;
-}
-
-/* =========================================================
-   REPORT COUNT + CHART
->>>>>>> Stashed changes
    ========================================================= */
 function computeRisk(){
   const active = allDisasters;
@@ -1456,15 +1334,12 @@ function openReportModal(){
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(pos => {
       userLatLng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-<<<<<<< Updated upstream
       if(userLocationMarker){ userLocationMarker.setLatLng(userLatLng); }
       else{
         userLocationMarker = L.circleMarker(userLatLng, {
           radius:8, color:"#2fa5d8", fillColor:"#2fa5d8", fillOpacity:0.8, weight:2, dashArray:"4,2"
         }).bindPopup("📍 Your location").addTo(map);
       }
-=======
->>>>>>> Stashed changes
       status.textContent = "📍 Location: using your current GPS position";
     }, () => {
       userLatLng = { lat: CONFIG.INDIA_CENTER[0], lng: CONFIG.INDIA_CENTER[1] };
@@ -1488,7 +1363,7 @@ function renderSOSContacts(){
         <div class="name">${c.name}</div>
         <div class="desc">${c.desc}</div>
       </div>
-      <a class="number" href="tel:${c.number.replace(/[^0-9]/g,'')}">${c.number}</a>
+      <a class="number" href="tel:${c.number.replace(/[^0-9]/g,'')}">  ${c.number}</a>
     </div>
   `).join('');
 }
@@ -1525,15 +1400,7 @@ document.getElementById('reportForm').addEventListener('submit', function(e){
   reports.push(report);
   allDisasters = [...MOCK_DISASTERS, ...reports];
   saveReports();
-<<<<<<< Updated upstream
   renderAll();
-=======
-  addMarkerForReport(report);
-  renderStats();
-  renderFeed();
-  updateTicker();
-  computeRiskLevel();
->>>>>>> Stashed changes
 
   // TODO: also push to Firebase Firestore here for cross-device sync
   // TODO: optionally pass description through the Claude API to
@@ -1565,16 +1432,9 @@ window.addEventListener('DOMContentLoaded', () => {
   buildTypeFilterList();
   populateReportTypeSelect();
   initMap();
-<<<<<<< Updated upstream
   fetchWeather(CONFIG.INDIA_CENTER[0], CONFIG.INDIA_CENTER[1]);
   renderAll();
-=======
-  fetchWeather(CONFIG.MUMBAI_CENTER[0], CONFIG.MUMBAI_CENTER[1]); // also triggers computeRiskLevel()
-  renderStats();
-  renderFeed();
-  updateTicker();
   renderSOSContacts();
->>>>>>> Stashed changes
 });
 </script>
 
